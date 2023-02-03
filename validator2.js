@@ -1,9 +1,8 @@
-function Validator(formSelector,options) {
+function Validator(formSelector) {
 
+    var _this = this
     //Gán giá trị mặc định cho tham số ES5
-    if(!options) {
-        options = {};
-    }
+    
 
     function getParent(element, selector) {
         while (element.parentElement) {
@@ -85,10 +84,10 @@ function Validator(formSelector,options) {
             var rules =formRules[event.target.name]
             var errMessage;
 
-            rule.find(function(rule) {
-                errMessage=rule(event.target.value);
-                return errMessage;
-            })
+            for(var rule of  rules) {
+                errMessage =rule(event.target.value);
+                if(errMessage) break;
+            }
 
             //Nếu có lỗi thì hiện thi message ra UI
             if(errMessage) {
@@ -120,8 +119,10 @@ function Validator(formSelector,options) {
     }
 
     //Xử lí hành vi submit form
-    formEmlement.onSubmit=function(event) {
+    formEmlement.onsubmit=function(event) {
         event.preventDefault();
+
+
 
         var inputs = formEmlement.querySelectorAll('[name] [rules]');
         var isValid =true;
@@ -134,7 +135,7 @@ function Validator(formSelector,options) {
 
         //Khi không có lỗi thì submit form
         if (isValid) {
-            if (typeof options.onSubmit === 'function') {
+            if (typeof _this.onSubmit === 'function') {
                 var enableInputs = formEmlement.querySelectorAll('[name]:not([disabled])')
 
                 var formValues = Array.from(enableInputs).reduce(function (values, input) {
@@ -150,7 +151,7 @@ function Validator(formSelector,options) {
                     return values
                 }, {})
 
-                options.onSubmit(formValues)
+                _this.onSubmit(formValues)
             }
         } else {
             formEmlement.submit()
